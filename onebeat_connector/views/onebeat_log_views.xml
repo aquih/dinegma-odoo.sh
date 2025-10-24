@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- View onebeat.log View List -->
+  <record id="view_onebeat_log_list" model="ir.ui.view">
+    <field name="name">view.onebeat.log.list</field>
+    <field name="model">onebeat.log</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="request_date"/>
+        <field name="user_id"/>
+        <field name="model_name"/>
+        <field name="state" widget="badge" decoration-success="state == 'success'" decoration-danger="state == 'error'"/>
+      </list>
+    </field>
+  </record>
+
+  <!-- View onebeat.log form -->
+  <record id="view_onebeat_log_form" model="ir.ui.view">
+    <field name="name">view.onebeat.log.form</field>
+    <field name="model">onebeat.log</field>
+    <field name="arch" type="xml">
+      <form string="Onebeat Log">
+        <header>
+          <field name="state" widget="statusbar" />
+        </header>
+        <sheet>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1>
+              <field name="name"/>
+            </h1>
+          </div>
+          <group>
+            <field name="request_date"/>
+            <field name="user_id"/>
+            <field name="model_name"/>
+            <field name="url_params"/>
+          </group>
+
+          <group string="Error">
+            <field name="error_desc"/>
+            <field name="error_traceback"/>
+          </group>
+
+          <group string="Response">
+            <field name="response" />
+            <field name="status_code" />
+          </group>
+
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- View onebeat.log search -->
+  <record id="view_onebeat_log_search" model="ir.ui.view">
+    <field name="name">view.onebeat.log.search</field>
+    <field name="model">onebeat.log</field>
+    <field name="arch" type="xml">
+      <search>
+        <group expand="1" string="Group By">
+          <filter string="Endpoint" name="group_by_name" domain="[]" context="{'group_by':'name'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- Action onebeat.log -->
+  <record id="action_onebeat_log" model="ir.actions.act_window">
+    <field name="name">Logs</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">onebeat.log</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[]</field>
+    <field name="context">{
+      "search_default_group_by_name": 1
+    }</field>
+    <field name="help" type="html">
+      <p class="oe_view_nocontent_create">
+        Logs de llamadas a las apis
+      </p>
+    </field>
+  </record>
+
+</odoo>

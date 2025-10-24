@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="inherit_product_view" model="ir.ui.view">
+    <field name="name">product.product.view.form.inherit</field>
+    <field name="model">product.product</field>
+    <field name="inherit_id" ref="product.product_normal_form_view"/>
+    <field name="arch" type="xml">
+
+      <page name="inventory" position="after">
+
+        <page name="onebeat" string="Onebeat">
+          <group>
+            <field name="eol_date" />
+          </group>
+        </page>
+      </page>
+
+    </field>
+  </record>
+
+</odoo>

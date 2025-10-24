@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- View product.attribute form -->
+    <record id="view_product_attribute_form" model="ir.ui.view">
+        <field name="name">view.product.attribute.form</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form"/>
+        <field name="arch" type="xml">
+            <page name="attribute_values" position="after">
+                <page string="Onebeat" name="onebeat">
+                    <group>
+                        <field name="onebeat_type"/>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>
