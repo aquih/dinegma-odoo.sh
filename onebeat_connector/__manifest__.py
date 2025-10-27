@@ -13,11 +13,11 @@
     "data": [
         "security/ir.model.access.csv",
         "security/security.xml",
-        "views/menues.xml",
         "views/onebeat_log_views.xml",
         "views/product_attribute_views.xml",
         "views/product_product_views.xml",
         "views/stock_location_views.xml"
+        "views/menues.xml",
     ],
     "application": True,
     "installable": True,
