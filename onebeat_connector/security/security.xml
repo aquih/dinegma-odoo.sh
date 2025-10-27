@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.module.category" id="module_category_onebeat_connector">
+        <field name="name">Onebeat Connector</field>
+        <field name="sequence">0</field>
+    </record>
+
+    <record id="group_onebeat_user" model="res.groups">
+        <field name="name">Permiso de acceso a las apis</field>
+        <field name="category_id" ref="onebeat_connector.module_category_onebeat_connector"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <menuitem id="onebeat_connector_menu" name="Onebeat Connector" sequence="10"/>
+  <menuitem id="onebeat_logs_menu" name="Logs" parent="onebeat_connector_menu" sequence="0" action="action_onebeat_log"/>
+
+</odoo>
