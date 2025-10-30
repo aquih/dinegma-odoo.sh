@@ -13,6 +13,14 @@ class ProductProduct(models.Model):
 
     eol_date = fields.Date(string="Fecha de fin de ciclo de vida")
 
+    def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
+        domain = []
+
+        if company_id is not None:
+            domain.append(("company_id", "=", company_id))
+
+        return domain
+
     def _onebeat_prepare_input_data(self):
         res = super()._onebeat_prepare_input_data()
 

@@ -138,9 +138,7 @@ class OnebeatController(http.Controller):
         api_model="stock.location",
     )
     def onebeat_locations(self, **kwargs):
-
         params = OnebeatApiParams.from_url(**kwargs)
-        params.check_date_ranges()
 
         StockLocation = request.env["stock.location"]
         return self._onebeat_model_json_response(StockLocation, params)
@@ -157,7 +155,6 @@ class OnebeatController(http.Controller):
     def onebeat_catalogs(self, **kwargs):
 
         params = OnebeatApiParams.from_url(**kwargs)
-        params.check_date_ranges()
 
         ProductProduct = request.env["product.product"]
         return self._onebeat_model_json_response(ProductProduct, params)

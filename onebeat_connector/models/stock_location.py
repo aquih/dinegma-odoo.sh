@@ -24,8 +24,13 @@ class StockLocation(models.Model):
     )
 
     def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
-        domain = super()._onebeat_search_domain(date_from, date_to, company_id)
+        domain = []
+
+        if company_id is not None:
+            domain.append(("company_id", "=", company_id))
+
         domain.append(("usage", "in", ("internal", "customer", "supplier")))
+
         return domain
 
     def _onebeat_prepare_input_data(self):
