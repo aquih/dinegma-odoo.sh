@@ -15,7 +15,7 @@ class StockQuant(models.Model):
     def _onebeat_search_domain(self, *args, **kwargs):
         domain = super()._onebeat_search_domain(*args, **kwargs)
 
-        domain += [("location_id.usage", "=", "internal")]
+        domain += [("location_id.onebeat_type", "in", ("warehouse", "store"))]
 
         return domain
 

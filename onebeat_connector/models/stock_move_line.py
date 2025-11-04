@@ -14,22 +14,25 @@ class StockMoveLine(models.Model):
     def _onebeat_search_domain(self, *args, **kwargs):
         domain = super()._onebeat_search_domain(*args, **kwargs)
 
+        # La location de tipo interna en Odoo puede mapearse a store o warehouse en OneBeat
+        onebeat_types = ("store", "warehouse")
+
         domain += [
             ("picking_id.state", "=", "done"),
             "|",
             "|",
             # Movimientos de entrega
             "&",
-            ("location_id.usage", "=", "internal"),
+            ("location_id.onebeat_type", "in", onebeat_types),
             ("location_dest_id.usage", "=", "customer"),
             # Movimientos de devolucion
             "&",
             ("location_id.usage", "=", "customer"),
-            ("location_dest_id.usage", "=", "internal"),
+            ("location_dest_id.onebeat_type", "in", onebeat_types),
             # Movimientos de recepcion
             "&",
             ("location_id.usage", "=", "supplier"),
-            ("location_dest_id.usage", "=", "internal"),
+            ("location_dest_id.onebeat_type", "in", onebeat_types),
         ]
 
         return domain

@@ -7,7 +7,6 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 ONEBEAT_TYPES = {
-    "internal": "warehouse",
     "transit": "vwarehouse",
     "production": "plant",
     "supplier": "supplier",
@@ -23,13 +22,23 @@ class StockLocation(models.Model):
         string="Plazo de reposicion predeterminado"
     )
 
+    onebeat_type = fields.Selection(
+        [("store", "Store"), ("warehouse", "Warehouse")],
+        string="Tipo de ubicacion en OneBeat",
+        default=False,
+    )
+
     def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
         domain = []
 
         if company_id is not None:
             domain.append(("company_id", "=", company_id))
 
-        domain.append(("usage", "in", ("internal", "customer", "supplier")))
+        domain += [
+            "|",
+            ("usage", "in", ("customer", "supplier")),
+            ("onebeat_type", "in", ("warehouse", "store")),
+        ]
 
         return domain
 
@@ -60,8 +69,12 @@ class StockLocation(models.Model):
 
         res.update(
             {
-                "name": self.name,
-                "type": ONEBEAT_TYPES[self.usage],
+                "name": self.display_name,
+                "type": (
+                    self.onebeat_type
+                    if self.onebeat_type
+                    else ONEBEAT_TYPES[self.usage]
+                ),
                 "default_replenishment_lead_time": self.default_replenishment_lead_time,
                 "avoid_replenishment": not self.replenish_location,
             }
