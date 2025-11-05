@@ -12,8 +12,11 @@ class StockQuant(models.Model):
     _name = "stock.quant"
     _inherit = ["stock.quant", "onebeat.base"]
 
-    def _onebeat_search_domain(self, *args, **kwargs):
-        domain = super()._onebeat_search_domain(*args, **kwargs)
+    def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
+        domain = []
+
+        if company_id is not None:
+            domain.append(("company_id", "=", company_id))
 
         domain += [("location_id.onebeat_type", "in", ("warehouse", "store"))]
 

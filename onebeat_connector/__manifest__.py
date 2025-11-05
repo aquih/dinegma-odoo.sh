@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Onebeat - Api Connector",
-    "version": "18.0.0.1",
+    "version": "18.0.0.2",
     "summary": """Apis y funcionalidades para integracion con Onebeat""",
     "author": "",
     "website": "",
