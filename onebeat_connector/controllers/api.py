@@ -110,7 +110,9 @@ class OnebeatApiParams:
 
 class OnebeatController(http.Controller):
 
-    def _onebeat_model_json_response(self, model_env, params: OnebeatApiParams):
+    def _onebeat_model_json_response(
+        self, model_env, params: OnebeatApiParams, exclude_inactives=True
+    ):
         """
         Construye una respuesta JSON para un modelo de Odoo específico en base a los parametros GET recibidos.
         model_env: debe ser cualquier modelo de Odoo que implemente el modelo abstracto onebeat.base
@@ -122,9 +124,10 @@ class OnebeatController(http.Controller):
         offset = params.offset
         company_id = params.company_id
 
-        records = model_env.onebeat_search_in_date_range(
-            date_from, date_to, limit, offset, company_id
-        )
+        records = model_env.with_context(
+            active_test=exclude_inactives
+        ).onebeat_search_in_date_range(date_from, date_to, limit, offset, company_id)
+
         dicts_list = records._onebeat_build_input_data()
         return request.make_json_response(dicts_list)
 
@@ -157,7 +160,9 @@ class OnebeatController(http.Controller):
         params = OnebeatApiParams.from_url(**kwargs)
 
         ProductProduct = request.env["product.product"]
-        return self._onebeat_model_json_response(ProductProduct, params)
+        return self._onebeat_model_json_response(
+            ProductProduct, params, exclude_inactives=False
+        )
 
     @http.route(
         "/onebeat/inventories",
