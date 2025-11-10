@@ -1,4 +1,7 @@
+from datetime import date, datetime
 from odoo import models, fields, api, _
+
+from ..controllers.api import ApiContext
 
 
 class OnebeatBase(models.AbstractModel):
@@ -9,15 +12,27 @@ class OnebeatBase(models.AbstractModel):
         return {"id": self._get_onebeat_id()}
 
     @api.model
-    def onebeat_search_in_date_range(
-        self, date_from: str, date_to: str, limit=None, offset=0, company_id=None
-    ):
-        domain = self._onebeat_search_domain(date_from, date_to, company_id)
+    def onebeat_search_in_date_range(self, ctx: ApiContext):
+        domain = self._onebeat_search_domain(ctx)
 
-        return self.search(domain, limit=limit, offset=offset)
+        limit = ctx.params.limit
+        offset = ctx.params.offset
 
-    def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
-        domain = [("create_date", ">=", date_from), ("create_date", "<=", date_to)]
+        return self.with_context(active_test=ctx.exclude_inactives).search(
+            domain, limit=limit, offset=offset
+        )
+
+    def _onebeat_search_domain(self, ctx: ApiContext):
+
+        domain = []
+
+        if ctx.params.has_date_ranges:
+            domain += [
+                ("create_date", ">=", ctx.params.date_from),
+                ("create_date", "<=", ctx.params.date_to),
+            ]
+
+        company_id = ctx.params.company_id
 
         if company_id is not None:
             domain.append(("company_id", "=", company_id))

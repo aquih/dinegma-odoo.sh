@@ -5,6 +5,8 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..controllers.api import ApiContext
+
 _logger = logging.getLogger(__name__)
 
 
@@ -12,25 +14,23 @@ class StockQuant(models.Model):
     _name = "stock.quant"
     _inherit = ["stock.quant", "onebeat.base"]
 
-    def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
-        domain = []
-
-        if company_id is not None:
-            domain.append(("company_id", "=", company_id))
-
+    def _onebeat_search_domain(self, ctx: ApiContext):
+        domain = super()._onebeat_search_domain(ctx)
         domain += [("location_id.onebeat_type", "in", ("warehouse", "store"))]
 
         return domain
 
     def _onebeat_prepare_input_data(self):
-        location_onebeat_id = self.location_id._get_onebeat_id()
-
         res = {
-            "location_id": location_onebeat_id,
+            "location_id": self.location_id._get_onebeat_id(),
             "sku_id": self.product_id._get_onebeat_id(),
             "site_qty": max(self.available_quantity, 0),
             "transit_qty": 0,
-            "source_location_id": location_onebeat_id,
+            "source_location_id": (
+                self.location_id.onebeat_src_location_id._get_onebeat_id()
+                if self.location_id.onebeat_src_location_id
+                else "-"
+            ),
             "reserved_qty": self.reserved_quantity,
             "replenishment_lead_time": self.location_id.default_replenishment_lead_time,
             "avoid_replenishment": not self.location_id.replenish_location,

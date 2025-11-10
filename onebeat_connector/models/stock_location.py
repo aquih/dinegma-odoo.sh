@@ -4,6 +4,9 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+
+from ..controllers.api import ApiContext
+
 _logger = logging.getLogger(__name__)
 
 ONEBEAT_TYPES = {
@@ -28,11 +31,12 @@ class StockLocation(models.Model):
         default=False,
     )
 
-    def _onebeat_search_domain(self, date_from: str, date_to: str, company_id=None):
-        domain = []
+    onebeat_src_location_id = fields.Many2one(
+        "stock.location", string="Ubicacion de abastecimiento preferida"
+    )
 
-        if company_id is not None:
-            domain.append(("company_id", "=", company_id))
+    def _onebeat_search_domain(self, ctx: ApiContext):
+        domain = super()._onebeat_search_domain(ctx)
 
         domain += [
             "|",

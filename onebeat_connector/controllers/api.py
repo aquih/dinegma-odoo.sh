@@ -3,12 +3,14 @@ import dataclasses
 from datetime import datetime
 import json
 import traceback
+import logging
 
+from odoo.addons.base.models.res_users import Users
 from odoo import http
 from odoo.http import request, HttpDispatcher
 from werkzeug.exceptions import HTTPException, BadRequest, Unauthorized
+import pytz
 
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -70,42 +72,50 @@ class OnebeatDispatcher(HttpDispatcher):
 
 @dataclasses.dataclass
 class OnebeatApiParams:
-    date_from: str = ""
-    date_to: str = ""
+    date_from: datetime = None
+    date_to: datetime = None
     company_id: int = None
     limit: int = None
     offset: int = 0
 
+    has_date_ranges: bool = False
+
     @classmethod
-    def from_url(cls, **kwargs):
-
-        class_fields = [f.name for f in dataclasses.fields(OnebeatApiParams)]
-
-        res = OnebeatApiParams(**{k: v for k, v in kwargs.items() if k in class_fields})
+    def from_url(cls, has_date_ranges=False, **kwargs):
+        vals = {"has_date_ranges": has_date_ranges, "date_from": None, "date_to": None}
 
         for int_field in ("company_id", "limit", "offset"):
-            value = getattr(res, int_field)
+            value = kwargs.get(int_field)
             if value is not None:
                 try:
-                    setattr(res, int_field, int(value))
+                    vals[int_field] = int(value)
                 except ValueError:
                     raise BadRequest(f"Invalid parameter: {int_field}")
 
-        return res
+        if has_date_ranges:
+            for date_field in ("date_from", "date_to"):
+                value = kwargs.get(date_field)
+                try:
+                    vals[date_field] = datetime.strptime(value, "%Y-%m-%d")
+                except ValueError:
+                    raise BadRequest(f"Invalid parameter: {date_field}")
 
-    def check_date_ranges(self):
+        return OnebeatApiParams(**vals)
 
-        valid_format = "%Y-%m-%d"
+    def localize_dates(self, user_id: Users):
+        # Define la zona horaria del usuario en los rangos de fechas
+        user_tz = pytz.timezone(user_id.tz)
+        self.date_from = self.date_from.replace(tzinfo=user_tz)
+        self.date_to = self.date_to.replace(hour=23, minute=59, second=59).replace(
+            tzinfo=user_tz
+        )
 
-        try:
-            datetime.strptime(self.date_from, valid_format)
-        except ValueError:
-            raise BadRequest("Invalid parameter: date_from")
 
-        try:
-            datetime.strptime(self.date_to, valid_format)
-        except ValueError:
-            raise BadRequest("Invalid parameter: date_to")
+@dataclasses.dataclass
+class ApiContext:
+    user_id: Users
+    params: OnebeatApiParams
+    exclude_inactives: bool = True
 
 
 class OnebeatController(http.Controller):
@@ -118,15 +128,11 @@ class OnebeatController(http.Controller):
         model_env: debe ser cualquier modelo de Odoo que implemente el modelo abstracto onebeat.base
         """
 
-        date_from = params.date_from
-        date_to = params.date_to
-        limit = params.limit
-        offset = params.offset
-        company_id = params.company_id
+        ctx = ApiContext(
+            user_id=request.env.user, params=params, exclude_inactives=exclude_inactives
+        )
 
-        records = model_env.with_context(
-            active_test=exclude_inactives
-        ).onebeat_search_in_date_range(date_from, date_to, limit, offset, company_id)
+        records = model_env.onebeat_search_in_date_range(ctx)
 
         dicts_list = records._onebeat_build_input_data()
         return request.make_json_response(dicts_list)
@@ -176,7 +182,6 @@ class OnebeatController(http.Controller):
     def onebeat_inventories(self, **kwargs):
 
         params = OnebeatApiParams.from_url(**kwargs)
-        params.check_date_ranges()
 
         StockQuant = request.env["stock.quant"]
         return self._onebeat_model_json_response(StockQuant, params)
@@ -192,8 +197,8 @@ class OnebeatController(http.Controller):
     )
     def onebeat_transactions(self, **kwargs):
 
-        params = OnebeatApiParams.from_url(**kwargs)
-        params.check_date_ranges()
+        params = OnebeatApiParams.from_url(has_date_ranges=True, **kwargs)
+        params.localize_dates(request.env.user)
 
         StockMoveLine = request.env["stock.move.line"]
         return self._onebeat_model_json_response(StockMoveLine, params)

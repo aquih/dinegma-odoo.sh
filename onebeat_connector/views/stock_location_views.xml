@@ -10,6 +10,7 @@
       <group name="additional_info" position="after">
         <group string="OneBeat">
           <field name="onebeat_type" invisible="usage != 'internal'"/>
+          <field name="onebeat_src_location_id"/>
           <field name="default_replenishment_lead_time"/>
         </group>
       </group>

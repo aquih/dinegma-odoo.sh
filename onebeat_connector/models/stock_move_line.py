@@ -3,6 +3,7 @@ import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from ..controllers.api import ApiContext
 
 _logger = logging.getLogger(__name__)
 
@@ -11,8 +12,8 @@ class StockMoveLine(models.Model):
     _name = "stock.move.line"
     _inherit = ["stock.move.line", "onebeat.base"]
 
-    def _onebeat_search_domain(self, *args, **kwargs):
-        domain = super()._onebeat_search_domain(*args, **kwargs)
+    def _onebeat_search_domain(self, ctx: ApiContext):
+        domain = super()._onebeat_search_domain(ctx)
 
         # La location de tipo interna en Odoo puede mapearse a store o warehouse en OneBeat
         onebeat_types = ("store", "warehouse")
