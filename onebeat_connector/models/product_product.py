@@ -60,14 +60,14 @@ class ProductProduct(models.Model):
 
         size_attr_value = brand_attr_value = color_attr_value = None
 
-        for attr_value_id in self.product_template_variant_value_ids:
-            onebeat_attr = attr_value_id.attribute_id.onebeat_type
+        for ptav_id in self.product_template_attribute_value_ids:
+            onebeat_attr = ptav_id.attribute_id.onebeat_type
             if onebeat_attr == "size":
-                size_attr_value = attr_value_id
+                size_attr_value = ptav_id
             elif onebeat_attr == "brand":
-                brand_attr_value = attr_value_id
+                brand_attr_value = ptav_id
             elif onebeat_attr == "color":
-                color_attr_value = attr_value_id
+                color_attr_value = ptav_id
 
         if size_attr_value:
             res["size"] = size_attr_value.name

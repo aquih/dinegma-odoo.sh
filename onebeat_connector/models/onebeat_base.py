@@ -35,7 +35,7 @@ class OnebeatBase(models.AbstractModel):
         company_id = ctx.params.company_id
 
         if company_id is not None:
-            domain.append(("company_id", "=", company_id))
+            domain.append(("company_id", "in", [False, company_id]))
 
         return domain
 
