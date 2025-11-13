@@ -27,6 +27,8 @@ patch(MainComponent.prototype, {
                         product_id: l.product_id.id,
                         inventory_quantity: l.inventory_quantity,
                         quantity: l.quantity,
+                        location_id: l.location_id?.id || false,
+                        location_name: l.location_id?.display_name || "",
                     }))
                 })], { type: "application/json" })
             },
