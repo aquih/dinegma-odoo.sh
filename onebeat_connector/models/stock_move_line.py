@@ -2,6 +2,9 @@
 import logging
 
 from odoo import models, fields, api, _
+from odoo.tools import float_is_zero
+from odoo.tools.float_utils import float_round
+
 from odoo.exceptions import UserError, ValidationError
 from ..controllers.api import ApiContext
 
@@ -65,6 +68,8 @@ class StockMoveLine(models.Model):
                 sale_price = so_line_id.price_unit
                 currency_id = so_line_id.currency_id
             elif self.picking_id.pos_order_id:
+                # Pickings de pdv con stock en tiempo real
+
                 po_lines_map = self.env["stock.move"]._prepare_lines_data_dict(
                     self.picking_id.pos_order_id.lines
                 )
@@ -76,6 +81,31 @@ class StockMoveLine(models.Model):
                     porder_line = po_lines_map[self.product_id.id]["order_lines"][0]
                     sale_price = porder_line.price_unit
                     currency_id = porder_line.currency_id
+            elif self.picking_id.pos_session_id:
+                # Picking de pdv configurado para actualizar el stock solo al cerrar la sesion
+                closed_order_ids = self.picking_id.pos_session_id._get_closed_orders()
+
+                all_lines = closed_order_ids.lines
+
+                stockable_lines = all_lines.filtered(
+                    lambda l: l.product_id.type == "consu"
+                    and not float_is_zero(
+                        l.qty, precision_rounding=l.product_id.uom_id.rounding
+                    )
+                    and l.product_id.id == self.product_id.id
+                )
+
+                po_product_lines = stockable_lines.filtered(lambda l: l.qty > 0)
+
+                if po_product_lines:
+                    sale_price = float_round(
+                        (
+                            sum(po_product_lines.mapped("price_unit"))
+                            / len(po_product_lines)
+                        ),
+                        2,
+                    )
+                    currency_id = po_product_lines[0].currency_id
 
         # Conversion de moneda si es necesario
         if sale_price and main_company_currency != currency_id:
