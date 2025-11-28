@@ -1,1 +1,1 @@
-# dinegma-odoo.sh
+ # dinegma-odoo.sh

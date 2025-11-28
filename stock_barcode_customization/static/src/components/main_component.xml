@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+  <t t-inherit="stock_barcode.MainComponent" t-inherit-mode="extension">
+    <xpath expr="//div[@t-if='env.model.printButtons']" position="inside">
+      <button class="w-100 fs-4 btn btn-success mb-2 py-2" t-on-click="onClickExportXlsx">
+        <i class="fa fa-file-excel-o me-1"/>
+        Exportar a excel
+      </button>
+    </xpath>
+
+
+    <xpath expr="//button[@t-if='env.model.displayApplyButton']" position="attributes">
+      <attribute name="t-if">user_is_admin</attribute>
+    </xpath>
+
+  </t>
+
+</templates>
+
