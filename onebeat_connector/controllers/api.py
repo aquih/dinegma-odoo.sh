@@ -5,9 +5,10 @@ import json
 import traceback
 import logging
 
-from odoo.addons.base.models.res_users import Users
 from odoo import http
 from odoo.http import request, HttpDispatcher
+from odoo.addons.base.models.res_users import Users
+
 from werkzeug.exceptions import HTTPException, BadRequest, Unauthorized
 import pytz
 
@@ -115,6 +116,7 @@ class OnebeatApiParams:
 class ApiContext:
     user_id: Users
     params: OnebeatApiParams
+    companies: list[int]
     exclude_inactives: bool = True
 
 
@@ -127,9 +129,27 @@ class OnebeatController(http.Controller):
         Construye una respuesta JSON para un modelo de Odoo específico en base a los parametros GET recibidos.
         model_env: debe ser cualquier modelo de Odoo que implemente el modelo abstracto onebeat.base
         """
+        ResCompany = request.env["res.company"]
+
+        if params.company_id is not None:
+            company = ResCompany.browse(params.company_id)
+            if not company.is_onebeat_synchronizable:
+                companies = []
+            else:
+                companies = [params.company_id]
+        else:
+            companies = ResCompany.search(
+                [("is_onebeat_synchronizable", "=", True)]
+            ).ids
+
+        if not companies:
+            return request.make_json_response([])
 
         ctx = ApiContext(
-            user_id=request.env.user, params=params, exclude_inactives=exclude_inactives
+            user_id=request.env.user,
+            params=params,
+            companies=companies,
+            exclude_inactives=exclude_inactives,
         )
 
         records = model_env.onebeat_search_in_date_range(ctx)

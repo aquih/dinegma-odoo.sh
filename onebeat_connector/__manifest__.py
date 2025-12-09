@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Onebeat - Api Connector",
-    "version": "18.0.1.2",
+    "version": "18.0.1.3",
     "summary": """Apis y funcionalidades para integracion con Onebeat""",
     "author": "",
     "website": "",
@@ -16,6 +16,7 @@
         "views/onebeat_log_views.xml",
         "views/product_attribute_views.xml",
         "views/product_product_views.xml",
+        "views/res_company_views.xml",
         "views/stock_location_views.xml",
         "views/menues.xml",
     ],

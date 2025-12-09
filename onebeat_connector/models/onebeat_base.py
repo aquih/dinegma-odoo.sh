@@ -32,10 +32,7 @@ class OnebeatBase(models.AbstractModel):
                 ("create_date", "<=", ctx.params.date_to),
             ]
 
-        company_id = ctx.params.company_id
-
-        if company_id is not None:
-            domain.append(("company_id", "in", [False, company_id]))
+        domain.append(("company_id", "in", [False, *ctx.companies]))
 
         return domain
 

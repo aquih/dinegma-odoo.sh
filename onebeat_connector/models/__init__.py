@@ -5,3 +5,4 @@ from . import product_product
 from . import product_attribute
 from . import stock_quant
 from . import stock_move_line
+from . import res_company
