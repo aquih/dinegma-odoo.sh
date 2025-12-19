@@ -28,6 +28,11 @@
         'views/account_tax.xml',
         'views/pos_payment_method.xml',
     ],
+        'assets': {
+        'point_of_sale._assets_pos': [
+            'dte_integration_sv/static/src/**/*'
+        ],
+    },
 
     'installable': True,
     'application': False,
