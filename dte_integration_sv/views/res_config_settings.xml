@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+
+    <record id="res_config_settings_view_form_inherit_bill_api" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.bill.api</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="10"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app string="DTE App Integration" name="dte_integration">
+
+                        <block title="DTE App Integration" name="dte_integration_block">
+
+                            <setting id="dte_integration_settings"
+                                     title="DTE App Integration"
+                                     string="DTE App Integration">
+                                    <group string="Bill Environment">
+                                        <field name="environment_bill_configuration"
+                                               widget="radio"
+                                               options="{'horizontal': true}"/>
+                                    </group>
+                                    <group string="Stage / Production URLs">
+                                        <field name="general_stage_url" placeholder="URL for Stage"/>
+                                        <field name="general_prod_url" placeholder="URL for Production"/>
+                                    </group>
+                                    <group string="Credentials">
+                                        <field name="username"/>
+                                        <field name="api_token" placeholder="API Token"/>
+                                    </group>
+                                    <group string="URLs">
+                                        <field name="auth_url"/>
+                                        <field name="unique_invoice_url"/>
+                                        <field name="lot_invoice_url"/>
+                                    </group>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+
+            </field>
+        </record>
+
+
+</odoo>

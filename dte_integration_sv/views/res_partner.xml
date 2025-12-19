@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_res_partner_form_inh" model="ir.ui.view">
+        <field name="name">res.partner.form.view.inh</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="dte_integration" string="Data Para Integración DTE">
+                    <group>
+                        <field name="tipo_documento"/>
+                        <field name="nrc" placeholder="NRC"/>
+                        <field name="actividad_economica_id"/>
+                        <field name="departamento"/>
+                        <field name="municipio_id"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

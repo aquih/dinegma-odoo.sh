@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_uom_uom_form_inh" model="ir.ui.view">
+        <field name="name">uom.uom.form.view.inh</field>
+        <field name="model">uom.uom</field>
+        <field name="inherit_id" ref="uom.product_uom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="dte_uom_code" placeholder="DTE UoM Code"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_uom_category_form_inh" model="ir.ui.view">
+        <field name="name">uom.category.form.view.inh</field>
+        <field name="model">uom.category</field>
+        <field name="inherit_id" ref="uom.product_uom_categ_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='uom_ids']/list/field[@name='ratio']" position="after">
+                <field name="dte_uom_code" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>

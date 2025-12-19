@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_municipio_info_form" model="ir.ui.view">
+        <field name="name">municipio.info.form.view</field>
+        <field name="model">municipio.info</field>
+        <field name="arch" type="xml">
+            <form string="Municipios">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_municipio_info_list" model="ir.ui.view">
+        <field name="name">municipio.info.list.view</field>
+        <field name="model">municipio.info</field>
+        <field name="arch" type="xml">
+            <list string="Municipios">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_municipio_info" model="ir.actions.act_window">
+        <field name="name">Municipios</field>
+        <field name="res_model">municipio.info</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <menuitem id="menu_municipio_info" name="Municipios" parent="dte_integration_sv.menu_dte_integracion"
+              action="action_municipio_info"/>
+
+
+</odoo>
