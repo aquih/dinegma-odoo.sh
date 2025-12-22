@@ -7,8 +7,9 @@
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='type']" position="after">
+                <field name="sincronizacion_fiscal"/>
                 <field name="cod_punto_venta" placeholder="Codigo Punto de Venta"/>
-                <field name="secuencia_pdv_id" invisible="True"/>
+                <field name="secuencia_pdv_id"/>
             </xpath>
         </field>
     </record>

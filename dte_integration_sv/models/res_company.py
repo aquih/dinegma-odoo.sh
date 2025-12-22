@@ -44,6 +44,9 @@ class ResCompany(models.Model):
     tipo_documento = fields.Selection([('36','NIT'),('13','DUI'),('37','Otro'),('03','Pasaporte'),('02','Carnet de Residente'),],
                                       string="Tipo Documento", store=True)
 
+    #Aditional Fields
+    ente_el_salvador = fields.Boolean(string="Utiliza ente gubernamental de El Salvador", store=True, default=False)
+
     @api.constrains('cod_company', 'cod_punto_venta')
     def _check_exactly_four_chars(self):
         for record in self:

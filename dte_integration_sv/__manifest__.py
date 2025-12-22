@@ -15,6 +15,7 @@
 
         #DATA
         'data/ir_secuence.xml',
+        'data/initial_data.xml',
 
         # VIEWS
         'views/res_config_settings.xml',

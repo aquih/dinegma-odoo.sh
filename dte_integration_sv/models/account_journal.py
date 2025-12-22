@@ -14,6 +14,8 @@ class AccountJournal(models.Model):
         default=lambda self: self._default_secuencia_pdv(),
         )
 
+    sincronizacion_fiscal = fields.Boolean(string="Se sincroniza fiscalmente",store=True, default=False)
+
     def _default_secuencia_pdv(self):
         return self.env['ir.sequence'].search(
             [('code', '=', 'account.journal.pdv')],

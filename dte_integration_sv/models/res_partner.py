@@ -15,3 +15,4 @@ class ResPartner(models.Model):
     municipio_id = fields.Many2one('municipio.info', string="Municipio", store=True)
     tipo_documento = fields.Selection([('36','NIT'),('13','DUI'),('37','Otro'),('03','Pasaporte'),('02','Carnet de Residente'),],
                                       string="Tipo Documento", store=True)
+    es_gran_contribuyente = fields.Boolean(string="Es Gran Contribuyente", default=False, store=True)

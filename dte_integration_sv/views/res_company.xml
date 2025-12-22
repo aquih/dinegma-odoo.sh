@@ -6,14 +6,20 @@
         <field name="model">res.company</field>
         <field name="inherit_id" ref="base.view_company_form"/>
         <field name="arch" type="xml">
+
+            <xpath expr="//notebook" position="before">
+                <group>
+                    <field name="ente_el_salvador" placeholder="User"/>
+                </group>
+            </xpath>
+
             <xpath expr="//sheet/notebook" position="inside">
-                <page name="dte_integration" string="DTE Integration">
+                <page name="dte_integration" string="DTE Integration" invisible="not ente_el_salvador">
                     <group string="DTE Integration Settings">
                         <field name="username" placeholder="User"/>
                         <field name="key" placeholder="Llave"/>
                         <field name="api_token" placeholder="API Token"/>
                     </group>
-
                     <group string="Campos Requeridos">
                         <field name="cod_company" placeholder="Codigo Compañía"/>
                         <field name="tipo_documento"/>
@@ -24,7 +30,6 @@
                         <field name="departamento"/>
                         <field name="municipio_id"/>
                     </group>
-
                 </page>
             </xpath>
         </field>

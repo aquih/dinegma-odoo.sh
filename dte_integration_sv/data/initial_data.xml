@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <data noupdate="1">
+        <record id="actividad_economica_46900" model="actividad.economica">
+            <field name="name">Venta al por mayor de otros productos</field>
+            <field name="code">46900</field>
+        </record>
+    </data>
+</odoo>

@@ -57,7 +57,7 @@ class AccountMove(models.Model):
             response = requests.get(pdf_url, timeout=30)
             response.raise_for_status()
         except Exception as e:
-            raise UserError(f"No se pudo descargar el PDF desde FESV: {str(e)}")
+            self.motivo_error = f"No se pudo descargar el PDF desde FESV: {str(e)}"
 
         pdf_content = response.content
         pdf_b64 = base64.b64encode(pdf_content)
@@ -108,6 +108,7 @@ class AccountMove(models.Model):
             self.write({
                 'json_data_fesv': json_response
             })
+            mensajes_error = ""
             if response.status_code in [200,201]:
                 self.syncronized_with_fesv = True
                 self.pdf_generado = json_response.get('pdf_path')
@@ -121,7 +122,6 @@ class AccountMove(models.Model):
                 mensajes_error = []
                 if errores.get('descripcionMsg'):
                     mensajes_error.append(errores.get('descripcionMsg'))
-                    raise UserError(f"{mensajes_error}")
 
                 if isinstance(errores, dict):
                     for campo, mensaje in errores.items():
@@ -133,10 +133,10 @@ class AccountMove(models.Model):
 
                 elif errores:
                     mensajes_error.append(str(errores))
+            self.motivo_error = mensajes_error
 
-                raise UserError(f"{mensajes_error}")
         except Exception as e:
-            raise UserError(f"Error de conexión con FESV: {str(e)}")
+            self.motivo_error = str(e)
 
 
 
@@ -149,14 +149,13 @@ class AccountMove(models.Model):
             else:
                 tipo_dte = '06'
                 if not self.debit_origin_id.es_credito_fiscal:
-                    raise UserError('No se puede emitir una nota de débito asociada a un documento que no es crédito fiscal.')
+                    self.motivo_error = f"No se puede emitir una nota de débito asociada a un documento que no es crédito fiscal."
 
         if self.move_type in ['out_refund', 'in_refund']:
             tipo_dte = '05'
 
             if not self.reversed_entry_id.es_credito_fiscal:
-                raise UserError(
-                    'No se puede emitir una nota de crédito asociada a un documento que no es crédito fiscal.')
+                self.motivo_error = f"No se puede emitir una nota de crédito asociada a un documento que no es crédito fiscal."
 
         if self.es_credito_fiscal and tipo_dte not in ["05","06"]:
             tipo_dte = '03'
@@ -168,7 +167,7 @@ class AccountMove(models.Model):
         document = {
             'tipo_dte': tipo_dte,
             'establecimiento':  self.company_id.cod_establecimiento,
-            'condicion_pago': 1, #TODO aca es 1 para contado, 2 para credoto y 3 para otro ,
+            'condicion_pago': 1,
             'actividad_economica': self.partner_id.actividad_economica_id.code if self.partner_id.actividad_economica_id else '',
             'uuid': generation_code_uuid,
             'numero_control': f"DTE-{tipo_dte}-{company_code}-{numero_secuencial}",
@@ -233,7 +232,7 @@ class AccountMove(models.Model):
             receptor = {
                 'nombre': self.partner_id.name,
                 'correo': self.partner_id.email,
-                'numero_documento': self.partner_id.x_studio_no_de_documento,
+                'numero_documento': self.partner_id.vat,
                 'nrc': self.partner_id.nrc if self.partner_id.nrc else None,
                 'codigo_actividad': self.partner_id.actividad_economica_id.code or None,
                 'direccion': {
@@ -333,29 +332,35 @@ class AccountMove(models.Model):
 
     def prepare_sync_data(self):
         self.ensure_one()
-        prepare_data = {
-            'documento': self.prepare_documento_data(),
+        if self.company_id.ente_el_salvador and self.journal_id.sincronizacion_fiscal:
+            if self.move_type in ['out_refund','in_refund'] and not self.reversed_entry_id.es_credito_fiscal:
+                if len(self.reversed_entry_id.invoice_line_ids) == len(self.invoice_line_ids):
+                    self.reversed_entry_id.invalidate_dte()
+                else:
+                    raise UserError("No se puede invalidar parcialmente una factura.Debe hacer el reembolso completo y realizar la factura nuevamente")
+            else:
+                prepare_data = {
+                    'documento': self.prepare_documento_data(),
 
-        }
-        prepare_data = self._remove_none(prepare_data)
-        if not self.es_diferido:
-            self.sync_invoice_fesv(prepare_data)
+                }
+                prepare_data = self._remove_none(prepare_data)
+                self.sync_invoice_fesv(prepare_data)
 
 
 
     def prepare_invalidate_dte_data(self):
         if not self.tipo_anulacion:
-            raise UserError("Debe seleccionar un tipo de anulación para invalidar el DTE.")
+            self.motivo_error = f"Debe seleccionar un tipo de anulación para invalidar el DTE."
 
         if self.tipo_anulacion and self.tipo_anulacion != '2':
             if not self.dte_reemplazo:
-                raise UserError("Debe seleccionar un archivo para reemplazar el DTE a invalidar.")
+                self.motivo_error = f"Debe seleccionar un archivo para reemplazar el DTE a invalidar."
 
         invalidacion = {
             'establecimiento': self.company_id.cod_establecimiento,
             'uuid': self.generation_code_uuid,
-            'tipo_anulacion': int(self.tipo_anulacion),
-            'motivo': self.motivo_anulacion or '',
+            'tipo_anulacion': 2,
+            'motivo': self.motivo_anulacion or 'Anulación de Factura',
             'nuevo_documento': self.dte_reemplazo.generation_code_uuid or None,
             'responsable': {
                 'nombre': self.company_id.name,
@@ -365,7 +370,7 @@ class AccountMove(models.Model):
             'solicitante': {
                 'nombre': self.partner_id.name,
                 'tipo_documento':self.partner_id.tipo_documento or "36",
-                'numero_documento': self.partner_id.x_studio_no_de_documento,
+                'numero_documento': self.partner_id.vat,
                 'correo': self.partner_id.email,
             }
         }
@@ -415,7 +420,6 @@ class AccountMove(models.Model):
                 mensajes_error = []
                 if errores.get('descripcionMsg'):
                     mensajes_error.append(errores.get('descripcionMsg'))
-                    raise UserError(f"{mensajes_error}")
 
                 if isinstance(errores, dict):
                     for campo, mensaje in errores.items():
@@ -427,9 +431,6 @@ class AccountMove(models.Model):
 
                 elif errores:
                     mensajes_error.append(str(errores))
-
-                raise UserError(f"{mensajes_error}")
+                self.motivo_error = mensajes_error
         except Exception as e:
-            raise UserError(f"Error de conexión con FESV: {str(e)}")
-
-
+            self.motivo_error = str(e)

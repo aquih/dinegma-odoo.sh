@@ -27,6 +27,7 @@
                                     </group>
                                     <group string="Credentials">
                                         <field name="username"/>
+                                        <field name="key"/>
                                         <field name="api_token" placeholder="API Token"/>
                                     </group>
                                     <group string="URLs">
