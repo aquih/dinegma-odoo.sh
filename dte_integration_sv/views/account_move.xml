@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_account_move_form_inh" model="ir.ui.view">
+        <field name="name">account.move.form.view.inh</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button type="object" name="prepare_sync_data" string="Sync Invoice" class="oe_highlight"
+                        invisible="syncronized_with_fesv == True"/>
+                <button type="object" name="invalidate_dte" string="Invalidate DTE" class="oe_highlight"
+                        invisible="syncronized_with_fesv != True or firma_electronica_anulacion != False"/>
+            </xpath>
+
+            <xpath expr="//group" position="after">
+                <group>
+                    <field name="es_credito_fiscal" readonly="syncronized_with_fesv"/>
+                    <field name="syncronized_with_fesv"/>
+<!--                    <field name="es_diferido"/>-->
+<!--                    <field name="es_contingencia" invisible="not es_diferido"/>-->
+                </group>
+<!--                <group invisible="not es_contingencia">-->
+<!--                    <field name="tipo_contingencia"/>-->
+<!--                    <field name="motivo_contingencia"/>-->
+<!--                </group>-->
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page name="dte_info" string="DTE Info">
+                    <group>
+                        <group id="dte_fields_group" string="DTE Information">
+                            <field name="json_data_fesv" invisible="1"/>
+                            <field name="pdf_generado"/>
+                            <field name="sello_recibido"/>
+                            <field name="firma_electronica"/>
+                        </group>
+                    </group>
+                </page>
+                <page name="dte_info_anulacion" string="DTE Anulacion">
+                    <group>
+                        <group id="dte_anulacion" string="DTE Information Anulación">
+                            <field name="pdf_generado_anulacion"/>
+                            <field name="sello_recibido_anulacion"/>
+                            <field name="firma_electronica_anulacion"/>
+                        </group>
+                        <group id="dte_invalidate_group" string="Invalidación DTE" invisible="not syncronized_with_fesv">
+<!--                            <field name="tipo_anulacion" invisible="not syncronized_with_fesv"/>-->
+                            <field name="motivo_anulacion" invisible="not syncronized_with_fesv"/>
+<!--                            <field name="dte_reemplazo" invisible="tipo_anulacion == '2' or not tipo_anulacion"/>-->
+                        </group>
+                    </group>
+
+                </page>
+                <page name="dte_errores" string="DTE Errores">
+                    <group>
+                        <group id="dte_errores" string="DTE Information Errores">
+                            <field name="motivo_error"/>
+                        </group>
+                    </group>
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
